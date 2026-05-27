@@ -1,7 +1,7 @@
 import axios from "axios";
 import { RawClientInput, ClientBrief, AgentResponse } from "@/types";
 // Add this import at the top
-import { safeParseJSON } from "@/utils/index";
+import { safeParseJSON } from "@/utils/parseAgent";
 
 // ============================================
 // SYSTEM PROMPT — The Brain of Agent 1
@@ -74,7 +74,7 @@ export const runIntakeAgent = async (
         });
 
 
-        const rawText: string = response.data.content[0].text;
+        const rawText: string = response.data?.content?.[0]?.text ?? "";
         const parsed = safeParseJSON<ClientBrief>(rawText);
         return { success: true, data: parsed };
 

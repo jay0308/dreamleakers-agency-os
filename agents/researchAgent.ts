@@ -1,6 +1,6 @@
 import axios from "axios";
 import { ClientBrief, MarketResearch, AgentResponse } from "@/types";
-import { safeParseJSON } from "@/utils/index";
+import { safeParseJSON } from "@/utils/parseAgent";
 
 const SYSTEM_PROMPT = `
 You are a Senior Market Research Analyst at Dreamleakers,
@@ -108,17 +108,17 @@ export const runResearchAgent = async (
 
   const briefAsString = `
 CLIENT BRIEF:
-Business Name: ${clientBrief.businessName}
-Industry: ${clientBrief.industry}
-Location: ${clientBrief.location}
-Target Market: ${clientBrief.targetMarket}
-Services Needed: ${clientBrief.servicesNeeded.join(", ")}
-Target Audience: ${clientBrief.targetAudience}
-Budget: ${clientBrief.budget} (${clientBrief.budgetCategory})
-Primary Goal: ${clientBrief.primaryGoal}
-Current Digital Presence: ${clientBrief.currentDigitalPresence}
-Competitors: ${clientBrief.competitors.join(", ")}
-Additional Notes: ${clientBrief.additionalNotes}
+Business Name: ${clientBrief?.businessName ?? ""}
+Industry: ${clientBrief?.industry ?? ""}
+Location: ${clientBrief?.location ?? ""}
+Target Market: ${clientBrief?.targetMarket ?? ""}
+Services Needed: ${clientBrief?.servicesNeeded?.join(", ") ?? ""}
+Target Audience: ${clientBrief?.targetAudience ?? ""}
+Budget: ${clientBrief?.budget ?? ""} (${clientBrief?.budgetCategory ?? ""})
+Primary Goal: ${clientBrief?.primaryGoal ?? ""}
+Current Digital Presence: ${clientBrief?.currentDigitalPresence ?? ""}
+Competitors: ${clientBrief?.competitors?.join(", ") ?? ""}
+Additional Notes: ${clientBrief?.additionalNotes ?? ""}
   `.trim();
 
   try {
@@ -128,7 +128,7 @@ Additional Notes: ${clientBrief.additionalNotes}
       max_tokens: 8000
     });
 
-    const rawText: string = response.data.content[0].text;
+    const rawText: string = response.data?.content?.[0]?.text ?? "";
     console.log("RAW RESPONSE:", rawText); // ← add this
     const parsed = safeParseJSON<MarketResearch>(rawText);
     return { success: true, data: parsed };

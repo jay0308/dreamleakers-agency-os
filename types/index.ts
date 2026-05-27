@@ -66,14 +66,81 @@ export interface AgentResponse<T> {
 }
 
 // ============================================
-// PIPELINE — Full State Type
+// AGENT 4 — Website & SEO Agent
 // ============================================
 
-export interface PipelineState {
+export interface PageBrief {
+    pageName: string;
+    purpose: string;
+    targetKeyword: string;
+    geoKeyword: string;
+    contentBrief: string;
+  }
+  
+  export interface WebsiteSEOPlan {
+    sitemap: string[];
+    pageBriefs: PageBrief[];
+    technicalSEO: string[];
+    localSEOActions: string[];
+    geoOptimizationTips: string[];
+    blogTopics: string[];
+  }
+  
+  // ============================================
+  // AGENT 5 — Social Media & Content Agent
+  // ============================================
+  
+  export interface ContentPost {
+    platform: string;
+    format: string;
+    topic: string;
+    caption: string;
+    hashtags: string[];
+  }
+  
+  export interface SocialMediaPlan {
+    platformStrategy: string;
+    contentPillars: string[];
+    weeklySchedule: string[];
+    samplePosts: ContentPost[];
+    hashtagStrategy: string[];
+    growthTactics: string[];
+  }
+  
+  // ============================================
+  // AGENT 6 — Performance Marketing Agent
+  // ============================================
+  
+  export interface AdCampaign {
+    campaignName: string;
+    platform: string;
+    objective: string;
+    targetAudience: string;
+    adCopy: string;
+    budget: string;
+  }
+  
+  export interface PerformanceMarketingPlan {
+    channelStrategy: string;
+    campaigns: AdCampaign[];
+    audienceSegments: string[];
+    budgetAllocation: string[];
+    kpis: string[];
+    thirtyDayPlan: string[];
+  }
+  
+  // ============================================
+  // UPDATED PIPELINE STATE
+  // ============================================
+  
+  export interface PipelineState {
     clientBrief: ClientBrief | null;
     marketResearch: MarketResearch | null;
     brandStrategy: BrandStrategy | null;
-    currentStage: "idle" | "intake" | "research" | "strategy" | "complete";
+    websiteSEOPlan: WebsiteSEOPlan | null;
+    socialMediaPlan: SocialMediaPlan | null;
+    performancePlan: PerformanceMarketingPlan | null;
+    currentStage: "idle" | "intake" | "research" | "strategy" | "parallel" | "complete";
     isLoading: boolean;
     error: string | null;
-}
+  }

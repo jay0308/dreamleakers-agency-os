@@ -1,6 +1,6 @@
 import axios from "axios";
-import { MarketResearch, BrandStrategy, AgentResponse } from "@/types";
-import { safeParseJSON } from "@/utils/index";
+import { MarketResearch, BrandStrategy, AgentResponse, ClientBrief } from "@/types";
+import { safeParseJSON } from "@/utils/parseAgent";
 
 // ============================================
 // AGENT 3 SYSTEM PROMPT
@@ -94,52 +94,65 @@ Return ONLY this exact JSON structure:
 // ============================================
 
 export const runStrategyAgent = async (
+  clientBrief: ClientBrief,
   marketResearch: MarketResearch
 ): Promise<AgentResponse<BrandStrategy>> => {
 
+
   // Serialize MarketResearch for Agent 3
-  const researchAsString = `
+  const contextAsString = `
+CLIENT IDENTITY — NEVER LOSE SIGHT OF THIS:
+Business Name: ${clientBrief?.businessName ?? ""}
+Industry: ${clientBrief?.industry ?? ""}
+Location: ${clientBrief?.location ?? ""}
+Target Market: ${clientBrief?.targetMarket ?? ""}
+Services: ${clientBrief?.servicesNeeded?.join(", ") ?? ""}
+Target Audience: ${clientBrief?.targetAudience ?? ""}
+Primary Goal: ${clientBrief?.primaryGoal ?? ""}
+Budget: ${clientBrief?.budget ?? ""} (${clientBrief?.budgetCategory ?? ""})
+Competitors: ${clientBrief?.competitors?.join(", ") ?? ""}
+
 MARKET RESEARCH REPORT:
 
 TARGET AUDIENCE ANALYSIS:
-${marketResearch.targetAudienceAnalysis}
+${marketResearch?.targetAudienceAnalysis ?? ""}
 
 COMPETITOR LANDSCAPE:
-${marketResearch.competitorLandscape}
+${marketResearch?.competitorLandscape ?? ""}
 
 MARKET OPPORTUNITIES:
-${marketResearch.marketOpportunities
+${(marketResearch?.marketOpportunities ?? [])
   .map((o, i) =>
     typeof o === "string"
       ? `${i + 1}. ${o}`
-      : `${i + 1}. ${o.opportunity} — ${o.rationale} (${o.marketSize})`
+      : `${i + 1}. ${o?.opportunity ?? ""} — ${o?.rationale ?? ""} (${o?.marketSize ?? ""})`
   )
   .join("\n")}
 
 KEY THREATS:
-${marketResearch.keyThreats.map((t, i) => `${i + 1}. ${t}`).join("\n")}
+${marketResearch?.keyThreats?.map((t, i) => `${i + 1}. ${t}`).join("\n") ?? ""}
 
 POSITIONING RECOMMENDATIONS:
-${marketResearch.positioningRecommendations}
+${marketResearch?.positioningRecommendations ?? ""}
 
 SEO KEYWORDS:
-${marketResearch.seoKeywords.join(", ")}
+${marketResearch?.seoKeywords?.join(", ") ?? ""}
 
 GEO KEYWORDS:
-${marketResearch.geoKeywords.join(", ")}
+${marketResearch?.geoKeywords?.join(", ") ?? ""}
 
 GEO OPPORTUNITIES:
-${marketResearch.geoOpportunities.join(", ")}
+${marketResearch?.geoOpportunities?.join(", ") ?? ""}
   `.trim();
 
   try {
     const response = await axios.post("/api/agent", {
       system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: researchAsString }],
+      messages: [{ role: "user", content: contextAsString }],
       max_tokens: 4000
     });
 
-    const rawText: string = response.data.content[0].text;
+    const rawText: string = response.data?.content?.[0]?.text ?? "";
     const parsed = safeParseJSON<BrandStrategy>(rawText);
     return { success: true, data: parsed };
 
