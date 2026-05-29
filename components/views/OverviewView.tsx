@@ -12,12 +12,12 @@ interface OverviewViewProps {
 }
 
 const agentMeta = [
-  { key: "agent1", label: "Client Intake",      time: "~15s" },
-  { key: "agent2", label: "Market Research",    time: "~30s" },
-  { key: "agent3", label: "Brand Strategy",     time: "~25s" },
-  { key: "agent4", label: "Website & SEO",      time: "~20s" },
-  { key: "agent5", label: "Social Media",       time: "~20s" },
-  { key: "agent6", label: "Performance Mktg",   time: "~20s" },
+  { key: "agent1", label: "Client Intake", time: "~15s" },
+  { key: "agent2", label: "Market Research", time: "~30s" },
+  { key: "agent3", label: "Brand Strategy", time: "~25s" },
+  { key: "agent4", label: "Website & SEO", time: "~20s" },
+  { key: "agent5", label: "Social Media", time: "~20s" },
+  { key: "agent6", label: "Performance Mktg", time: "~20s" },
 ];
 
 const stageLabels: Record<string, string> = {
@@ -26,6 +26,7 @@ const stageLabels: Record<string, string> = {
   research: "Agent 2 — Researching market...",
   strategy: "Agent 3 — Building strategy...",
   parallel: "Agents 4, 5, 6 — Running in parallel...",
+  handoff: "Agent 7 — Compiling handoff package...",
   complete: "Pipeline complete"
 };
 
@@ -40,14 +41,28 @@ export default function OverviewView({
   error
 }: OverviewViewProps) {
 
+  const getButtonLabel = () => {
+    if (isRunning) {
+      return `⚙ ${stageLabels[stage] ?? "Running..."}`;
+    }
+    if (!completedAgents.agent1) return "Run Full Pipeline →";
+    if (!completedAgents.agent2) return "Resume from Agent 2 →";
+    if (!completedAgents.agent3) return "Resume from Agent 3 →";
+    if (!completedAgents.agent4 ||
+        !completedAgents.agent5 ||
+        !completedAgents.agent6) return "Resume from Execution →";
+    if (!completedAgents.agent7) return "Generate Handoff Package →";
+    return "Pipeline Complete ✓";
+  };
+
   const completedCount = Object.values(completedAgents)
     .filter(Boolean).length;
 
   const formatted = lastRun
     ? new Date(lastRun).toLocaleDateString("en-IN", {
-        day: "numeric", month: "short",
-        hour: "2-digit", minute: "2-digit"
-      })
+      day: "numeric", month: "short",
+      hour: "2-digit", minute: "2-digit"
+    })
     : null;
 
   return (
@@ -172,13 +187,13 @@ export default function OverviewView({
                     background: done
                       ? "rgba(34,197,94,0.15)"
                       : isActive
-                      ? "rgba(255,91,46,0.15)"
-                      : "var(--surface)",
+                        ? "rgba(255,91,46,0.15)"
+                        : "var(--surface)",
                     border: `1px solid ${done
                       ? "rgba(34,197,94,0.4)"
                       : isActive
-                      ? "var(--accent)"
-                      : "var(--border)"}`,
+                        ? "var(--accent)"
+                        : "var(--border)"}`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -189,13 +204,13 @@ export default function OverviewView({
                     {done
                       ? <span style={{ color: "var(--green)", fontSize: 14 }}>✓</span>
                       : isActive
-                      ? <span style={{
+                        ? <span style={{
                           width: 8, height: 8,
                           borderRadius: "50%",
                           background: "var(--accent)",
                           animation: "pulse-dot 1s infinite"
                         }} />
-                      : <span style={{
+                        : <span style={{
                           fontFamily: "'DM Mono', monospace",
                           fontSize: 10,
                           color: "var(--muted2)"
@@ -210,8 +225,8 @@ export default function OverviewView({
                     color: done
                       ? "var(--green)"
                       : isActive
-                      ? "var(--accent)"
-                      : "var(--muted2)",
+                        ? "var(--accent)"
+                        : "var(--muted2)",
                     whiteSpace: "nowrap"
                   }}>
                     {agent.time}
@@ -282,31 +297,48 @@ export default function OverviewView({
       {/* Run Button */}
       <button
         onClick={onRun}
-        disabled={!input.trim() || isRunning}
+        disabled={
+          (!input.trim() && !completedAgents.agent1) ||
+          isRunning ||
+          (completedAgents.agent7)
+        }
         style={{
           padding: "14px 32px",
-          background: !input.trim() || isRunning
-            ? "var(--surface2)" : "var(--accent)",
-          border: `1px solid ${!input.trim() || isRunning
-            ? "var(--border)" : "var(--accent)"}`,
+          background: completedAgents.agent7
+            ? "var(--surface2)"
+            : isRunning
+              ? "var(--surface2)"
+              : "var(--accent)",
+          border: `1px solid ${completedAgents.agent7
+            ? "var(--border)"
+            : isRunning
+              ? "var(--border)"
+              : "var(--accent)"}`,
           borderRadius: 10,
-          color: !input.trim() || isRunning
+          color: completedAgents.agent7 || isRunning
             ? "var(--muted)" : "#000",
           fontSize: 13,
           fontWeight: 700,
           fontFamily: "'DM Sans', sans-serif",
-          cursor: !input.trim() || isRunning
+          cursor: completedAgents.agent7 || isRunning
             ? "not-allowed" : "pointer",
           transition: "all 0.2s ease",
-          letterSpacing: 0.3
         }}
       >
-        {isRunning
-          ? `⚙ ${stageLabels[stage]}`
-          : completedCount > 0
-          ? "Continue Pipeline →"
-          : "Run Full Pipeline →"}
+        {getButtonLabel()}
       </button>
+      {/* Resume indicator */}
+      {lastRun && !completedAgents.agent7 && !isRunning && (
+        <p style={{
+          marginTop: 10,
+          fontSize: 11,
+          fontFamily: "'DM Mono', monospace",
+          color: "var(--muted)",
+          letterSpacing: 1
+        }}>
+          ↑ Will skip completed agents and resume from checkpoint
+        </p>
+      )}
 
       {/* Error */}
       {error && (

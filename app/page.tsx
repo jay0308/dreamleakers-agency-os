@@ -10,9 +10,10 @@ import { runStrategyAgent } from "@/agents/strategyAgent";
 import { runWebsiteAgent } from "@/agents/websiteAgent";
 import { runSocialAgent } from "@/agents/socialAgent";
 import { runPerformanceAgent } from "@/agents/performanceAgent";
+import { runHandoffAgent } from "@/agents/handoffAgent";
 import {
   ClientBrief, MarketResearch, BrandStrategy,
-  WebsiteSEOPlan, SocialMediaPlan, PerformanceMarketingPlan
+  WebsiteSEOPlan, SocialMediaPlan, PerformanceMarketingPlan, HandoffPackage
 } from "@/types";
 import {
   loadPipelineState,
@@ -23,12 +24,13 @@ import {
   saveBrandStrategy,
   saveWebsitePlan,
   saveSocialPlan,
-  savePerformancePlan
+  savePerformancePlan,
+  saveHandoffPackage
 } from "@/utils/storage";
 
 type Stage =
   "idle" | "intake" | "research" |
-  "strategy" | "parallel" | "complete";
+  "strategy" | "parallel" | "handoff" | "complete";
 
 export default function Home() {
 
@@ -51,10 +53,12 @@ export default function Home() {
     useState<SocialMediaPlan | null>(null);
   const [performancePlan, setPerformancePlan] =
     useState<PerformanceMarketingPlan | null>(null);
+  const [handoffPackage, setHandoffPackage] =
+    useState<HandoffPackage | null>(null);
 
   const [cachedAgents, setCachedAgents] = useState({
     agent1: false, agent2: false, agent3: false,
-    agent4: false, agent5: false, agent6: false
+    agent4: false, agent5: false, agent6: false, agent7: false
   });
 
   const completedAgents = {
@@ -63,7 +67,8 @@ export default function Home() {
     agent3: !!brandStrategy,
     agent4: !!websitePlan,
     agent5: !!socialPlan,
-    agent6: !!performancePlan
+    agent6: !!performancePlan,
+    agent7: !!handoffPackage,
   };
 
   const isRunning = stage !== "idle" && stage !== "complete";
@@ -82,13 +87,15 @@ export default function Home() {
     if (saved.performancePlan || saved.brandStrategy) {
       setStage("complete");
     }
+    if (saved.handoffPackage) setHandoffPackage(saved.handoffPackage);
     setCachedAgents({
       agent1: !!saved.clientBrief,
       agent2: !!saved.marketResearch,
       agent3: !!saved.brandStrategy,
       agent4: !!saved.websitePlan,
       agent5: !!saved.socialPlan,
-      agent6: !!saved.performancePlan
+      agent6: !!saved.performancePlan,
+      agent7: !!saved.handoffPackage,
     });
   }, []);
 
@@ -102,18 +109,22 @@ export default function Home() {
     setSocialPlan(null); setPerformancePlan(null);
     setCachedAgents({
       agent1: false, agent2: false, agent3: false,
-      agent4: false, agent5: false, agent6: false
+      agent4: false, agent5: false, agent6: false, agent7: false
     });
     setActiveView("overview");
+    setHandoffPackage(null);
   };
 
   // ── PIPELINE ──
   const runPipeline = async () => {
-    if (!input.trim()) return;
-    setError("");
-    saveRawInput(input);
 
-    // Agent 1
+    // Need input only if Agent 1 hasn't run yet
+    if (!clientBrief && !input.trim()) return;
+    setError("");
+
+    if (input.trim()) saveRawInput(input);
+
+    // ── AGENT 1 ──
     let brief = clientBrief;
     if (!brief) {
       setStage("intake");
@@ -129,7 +140,7 @@ export default function Home() {
       setCachedAgents(p => ({ ...p, agent1: true }));
     }
 
-    // Agent 2
+    // ── AGENT 2 ──
     let research = marketResearch;
     if (!research) {
       setStage("research");
@@ -144,7 +155,7 @@ export default function Home() {
       setCachedAgents(p => ({ ...p, agent2: true }));
     }
 
-    // Agent 3
+    // ── AGENT 3 ──
     let strategy = brandStrategy;
     if (!strategy) {
       setStage("strategy");
@@ -159,10 +170,14 @@ export default function Home() {
       setCachedAgents(p => ({ ...p, agent3: true }));
     }
 
-    // Agents 4, 5, 6 — Parallel
-    const needsWebsite = !websitePlan;
-    const needsSocial = !socialPlan;
-    const needsPerformance = !performancePlan;
+    // ── AGENTS 4, 5, 6 — Parallel ──
+    let localWebsitePlan = websitePlan;
+    let localSocialPlan = socialPlan;
+    let localPerformancePlan = performancePlan;
+
+    const needsWebsite = !localWebsitePlan;
+    const needsSocial = !localSocialPlan;
+    const needsPerformance = !localPerformancePlan;
 
     if (needsWebsite || needsSocial || needsPerformance) {
       setStage("parallel");
@@ -172,6 +187,7 @@ export default function Home() {
         tasks.push(
           runWebsiteAgent(brief, strategy).then(r => {
             if (r.success && r.data) {
+              localWebsitePlan = r.data;
               setWebsitePlan(r.data);
               saveWebsitePlan(r.data);
               setCachedAgents(p => ({ ...p, agent4: true }));
@@ -179,10 +195,12 @@ export default function Home() {
           })
         );
       }
+
       if (needsSocial) {
         tasks.push(
           runSocialAgent(brief, strategy).then(r => {
             if (r.success && r.data) {
+              localSocialPlan = r.data;
               setSocialPlan(r.data);
               saveSocialPlan(r.data);
               setCachedAgents(p => ({ ...p, agent5: true }));
@@ -190,10 +208,12 @@ export default function Home() {
           })
         );
       }
+
       if (needsPerformance) {
         tasks.push(
           runPerformanceAgent(brief, research, strategy).then(r => {
             if (r.success && r.data) {
+              localPerformancePlan = r.data;
               setPerformancePlan(r.data);
               savePerformancePlan(r.data);
               setCachedAgents(p => ({ ...p, agent6: true }));
@@ -203,6 +223,31 @@ export default function Home() {
       }
 
       await Promise.all(tasks);
+    }
+
+    // ── AGENT 7 ──
+    if (!handoffPackage &&
+      localWebsitePlan &&
+      localSocialPlan &&
+      localPerformancePlan) {
+      setStage("handoff");
+      const r = await runHandoffAgent(
+        brief,
+        research,
+        strategy,
+        localWebsitePlan,
+        localSocialPlan,
+        localPerformancePlan
+      );
+      if (r.success && r.data) {
+        console.log("✅ Agent 7 data:", r.data); 
+        setHandoffPackage(r.data);
+        saveHandoffPackage(r.data);
+        setCachedAgents(p => ({ ...p, agent7: true }));
+      } else {
+        setError(r.error || "Agent 7 failed");
+        setStage("idle"); return;
+      }
     }
 
     setStage("complete");
@@ -261,6 +306,7 @@ export default function Home() {
               socialPlan={socialPlan}
               performancePlan={performancePlan}
               cachedAgents={cachedAgents}
+              handoffPackage={handoffPackage}
             />
           )}
 

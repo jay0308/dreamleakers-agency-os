@@ -9,7 +9,7 @@ import { ClientBrief } from "@/types";
 export type ActiveView =
   | "overview"
   | "agent1" | "agent2" | "agent3"
-  | "agent4" | "agent5" | "agent6";
+  | "agent4" | "agent5" | "agent6" | "agent7";
 
 interface AgentItem {
   id: ActiveView;
@@ -70,6 +70,12 @@ const agentItems: AgentItem[] = [
     sublabel: "Ads + Campaigns",
     icon: "06"
   },
+  {
+    id: "agent7",
+    label: "Delivery & Handoff",
+    sublabel: "Brief + Spec + Report",
+    icon: "07"
+  },
 ];
 
 // ============================================
@@ -78,7 +84,7 @@ const agentItems: AgentItem[] = [
 
 const agentKey: Record<string, string> = {
   agent1: "agent1", agent2: "agent2", agent3: "agent3",
-  agent4: "agent4", agent5: "agent5", agent6: "agent6"
+  agent4: "agent4", agent5: "agent5", agent6: "agent6", agent7: "agent7"
 };
 
 const stageToAgent: Record<string, string> = {

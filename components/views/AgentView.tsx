@@ -3,7 +3,8 @@
 import {
   ClientBrief, MarketResearch, BrandStrategy,
   WebsiteSEOPlan, SocialMediaPlan, PerformanceMarketingPlan,
-  MarketOpportunity, PageBrief, ContentPost, AdCampaign
+  MarketOpportunity, PageBrief, ContentPost, AdCampaign,
+  HandoffPackage
 } from "@/types";
 
 // ============================================
@@ -882,6 +883,423 @@ function Agent6View({
   );
 }
 
+function Agent7View({
+  data,
+  cached
+}: {
+  data: HandoffPackage;
+  cached: boolean
+}) {
+  return (
+    <>
+      <AgentViewHeader
+        number="07"
+        title="Delivery & Handoff"
+        subtitle="Design brief, dev spec, and client report"
+        cached={cached}
+      />
+
+      {/* Three tab sections */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "1fr",
+        gap: 24
+      }}>
+
+        {/* DESIGN BRIEF */}
+        <div>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 14
+          }}>
+            <div style={{
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              background: "rgba(245,158,11,0.15)",
+              border: "1px solid rgba(245,158,11,0.3)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 12
+            }}>🎨</div>
+            <span style={{
+              fontFamily: "'Syne', sans-serif",
+              fontSize: 16,
+              fontWeight: 700,
+              color: "var(--text)"
+            }}>
+              Design Brief
+            </span>
+            <span style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: 9,
+              color: "#F59E0B",
+              border: "1px solid rgba(245,158,11,0.3)",
+              padding: "2px 8px",
+              borderRadius: 4
+            }}>
+              FOR YOUR BROTHER
+            </span>
+          </div>
+
+          <Card label="Visual Direction" accent>
+            <BodyText text={data.designBrief.visualDirection} />
+          </Card>
+
+          <Card label="Color Palette" accent>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {(data.designBrief.colorPalette ?? []).map((color, i) => (
+                <div key={i} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "6px 10px",
+                  background: "var(--surface)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 6
+                }}>
+                  <div style={{
+                    width: 14,
+                    height: 14,
+                    borderRadius: 3,
+                    background: color.includes("#")
+                      ? color.split(" ")[0] : "#888",
+                    border: "1px solid rgba(255,255,255,0.1)"
+                  }} />
+                  <span style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: 11,
+                    color: "var(--text)"
+                  }}>
+                    {color}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card label="Typography Direction" accent>
+            <BodyText text={data.designBrief.typographyDirection} />
+          </Card>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 12
+          }}>
+            <Card label="Key Visual Elements" accent>
+              <BulletList items={data.designBrief.keyVisualElements} />
+            </Card>
+            <Card label="Assets Needed" accent>
+              <BulletList items={data.designBrief.assetsNeeded} />
+            </Card>
+          </div>
+
+          <Card label="Page Layout Notes" accent>
+            <BulletList items={data.designBrief.pageLayoutNotes} />
+          </Card>
+
+          <Card label="Mood & Feel" accent>
+            <BodyText text={data.designBrief.moodAndFeel} />
+          </Card>
+        </div>
+
+        {/* Divider */}
+        <div style={{
+          height: 1,
+          background: "var(--border)",
+          margin: "8px 0"
+        }} />
+
+        {/* DEV SPEC */}
+        <div>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 14
+          }}>
+            <div style={{
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              background: "rgba(56,189,248,0.15)",
+              border: "1px solid rgba(56,189,248,0.3)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 12
+            }}>⚙️</div>
+            <span style={{
+              fontFamily: "'Syne', sans-serif",
+              fontSize: 16,
+              fontWeight: 700,
+              color: "var(--text)"
+            }}>
+              Dev Spec
+            </span>
+            <span style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: 9,
+              color: "var(--blue)",
+              border: "1px solid rgba(56,189,248,0.3)",
+              padding: "2px 8px",
+              borderRadius: 4
+            }}>
+              FOR YOU
+            </span>
+          </div>
+
+          <Card label="Tech Stack" accent>
+            <BodyText text={data.devSpec.techStackRecommendation} />
+          </Card>
+
+          <Card label="Pages & Routes" accent>
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 6
+            }}>
+              {(data.devSpec.pagesAndRoutes ?? []).map((route, i) => (
+                <div key={i} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "7px 12px",
+                  background: "var(--surface)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 6
+                }}>
+                  <span style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: 11,
+                    color: "var(--blue)"
+                  }}>
+                    /
+                  </span>
+                  <span style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: 12,
+                    color: "var(--text)"
+                  }}>
+                    {route}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 12
+          }}>
+            <Card label="SEO Checklist" accent>
+              <BulletList items={data.devSpec.seoImplementationChecklist} />
+            </Card>
+            <Card label="Performance Targets" accent>
+              <BulletList items={data.devSpec.performanceRequirements} />
+            </Card>
+          </div>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 12
+          }}>
+            <Card label="Integrations" accent>
+              <BulletList items={data.devSpec.integrationsNeeded} />
+            </Card>
+            <Card label="Schema Markup" accent>
+              <BulletList items={data.devSpec.schemaMarkup} />
+            </Card>
+          </div>
+
+          <Card label="Launch Checklist" accent>
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 6
+            }}>
+              {(data.devSpec.launchChecklist ?? []).map((item, i) => (
+                <div key={i} style={{
+                  display: "flex",
+                  gap: 10,
+                  padding: "8px 12px",
+                  background: "var(--surface)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 6,
+                  alignItems: "flex-start"
+                }}>
+                  <span style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: 10,
+                    color: "var(--muted)",
+                    marginTop: 2,
+                    minWidth: 20
+                  }}>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span style={{
+                    fontSize: 13,
+                    color: "var(--text)"
+                  }}>
+                    {item}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        {/* Divider */}
+        <div style={{
+          height: 1,
+          background: "var(--border)",
+          margin: "8px 0"
+        }} />
+
+        {/* CLIENT REPORT */}
+        <div>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 14
+          }}>
+            <div style={{
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              background: "rgba(34,197,94,0.15)",
+              border: "1px solid rgba(34,197,94,0.3)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 12
+            }}>📄</div>
+            <span style={{
+              fontFamily: "'Syne', sans-serif",
+              fontSize: 16,
+              fontWeight: 700,
+              color: "var(--text)"
+            }}>
+              Client Report
+            </span>
+            <span style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: 9,
+              color: "var(--green)",
+              border: "1px solid rgba(34,197,94,0.3)",
+              padding: "2px 8px",
+              borderRadius: 4
+            }}>
+              FOR CLIENT
+            </span>
+          </div>
+
+          <div style={{
+            background: "rgba(34,197,94,0.06)",
+            border: "1px solid rgba(34,197,94,0.2)",
+            borderRadius: 12,
+            padding: "20px 24px",
+            marginBottom: 12
+          }}>
+            <div style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: 9,
+              color: "var(--green)",
+              letterSpacing: 2,
+              textTransform: "uppercase",
+              marginBottom: 8
+            }}>
+              Executive Summary
+            </div>
+            <p style={{
+              fontSize: 14,
+              color: "var(--text)",
+              lineHeight: 1.7
+            }}>
+              {data.clientReport.executiveSummary}
+            </p>
+          </div>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 12
+          }}>
+            <Card label="Market Position" accent>
+              <BodyText text={data.clientReport.marketPosition} />
+            </Card>
+            <Card label="Brand Strategy" accent>
+              <BodyText text={data.clientReport.brandStrategy} />
+            </Card>
+          </div>
+
+          <Card label="Digital Roadmap" accent>
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 8
+            }}>
+              {(data.clientReport.digitalRoadmap ?? []).map((phase, i) => (
+                <div key={i} style={{
+                  display: "flex",
+                  gap: 14,
+                  padding: "10px 14px",
+                  background: "var(--surface)",
+                  border: "1px solid var(--border)",
+                  borderLeft: "3px solid var(--green)",
+                  borderRadius: 8
+                }}>
+                  <span style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: 10,
+                    color: "var(--green)",
+                    minWidth: 50,
+                    marginTop: 2
+                  }}>
+                    Phase {i + 1}
+                  </span>
+                  <span style={{
+                    fontSize: 13,
+                    color: "var(--text)",
+                    lineHeight: 1.6
+                  }}>
+                    {phase}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 12
+          }}>
+            <Card label="Expected Outcomes" accent>
+              <BulletList items={data.clientReport.expectedOutcomes} />
+            </Card>
+            <Card label="Next Steps" accent>
+              <BulletList items={data.clientReport.nextSteps} />
+            </Card>
+          </div>
+
+          <Card label="Investment Breakdown" accent>
+            <BodyText text={data.clientReport.investmentBreakdown} />
+          </Card>
+        </div>
+
+      </div>
+    </>
+  );
+}
+
 // ============================================
 // MAIN EXPORT — routes to correct agent view
 // ============================================
@@ -895,6 +1313,7 @@ interface AgentViewProps {
   socialPlan: SocialMediaPlan | null;
   performancePlan: PerformanceMarketingPlan | null;
   cachedAgents: Record<string, boolean>;
+  handoffPackage: HandoffPackage | null;
 }
 
 export default function AgentView({
@@ -905,7 +1324,8 @@ export default function AgentView({
   websitePlan,
   socialPlan,
   performancePlan,
-  cachedAgents
+  cachedAgents,
+  handoffPackage
 }: AgentViewProps) {
 
   if (agentId === "agent1" && clientBrief) {
@@ -925,6 +1345,9 @@ export default function AgentView({
   }
   if (agentId === "agent6" && performancePlan) {
     return <Agent6View data={performancePlan} cached={cachedAgents.agent6} />;
+  }
+  if (agentId === "agent7" && handoffPackage) {
+    return <Agent7View data={handoffPackage} cached={cachedAgents.agent7} />;
   }
 
   return (
